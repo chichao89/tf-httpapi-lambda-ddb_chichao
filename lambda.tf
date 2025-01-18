@@ -14,7 +14,7 @@ resource "aws_lambda_function" "http_api_lambda" {
   role             = aws_iam_role.lambda_exec.arn
 
   environment {
-    variables = {} # todo: fill with apporpriate value
+    variables = {DDB_TABLE = aws_dynamodb_table.table.name} # todo: fill with apporpriate value
   }
 }
 
@@ -45,7 +45,10 @@ resource "aws_iam_policy" "lambda_exec_role" {
         {
             "Effect": "Allow",
             "Action": [
-                "dynamodb:GetItem"
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:Scan",
+                "dynamodb:DeleteItem" 
             ],
             "Resource": "${aws_dynamodb_table.table.arn}"
         },
@@ -67,3 +70,9 @@ resource "aws_iam_role_policy_attachment" "lambda_policy" {
   role       = aws_iam_role.lambda_exec.name
   policy_arn = aws_iam_policy.lambda_exec_role.arn
 }
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/chichao89see-aws-topmovies-api"
+  retention_in_days = 7
+}
+
